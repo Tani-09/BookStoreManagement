@@ -1,0 +1,11 @@
+{
+  "build": {
+    "nixpacks": {
+      "plan": {
+        "dependencies": {
+          "dotnet-sdk": "8.0"
+        }
+      }
+    }
+  }
+}
