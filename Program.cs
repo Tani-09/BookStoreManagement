@@ -23,7 +23,24 @@ var builder = WebApplication.CreateSlimBuilder(args);
 
 
 //CONFIGURE JWT SETTINGS
+//builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+var jwtSettings = new JwtSettings
+{
+    Issuer = Environment.GetEnvironmentVariable("JWTSETTINGS__ISSUER") ?? builder.Configuration["JwtSettings:Issuer"],
+    Audience = Environment.GetEnvironmentVariable("JWTSETTINGS__AUDIENCE") ?? builder.Configuration["JwtSettings:Audience"],
+    Key = Environment.GetEnvironmentVariable("JWTSETTINGS__KEY") ?? builder.Configuration["JwtSettings:Key"]
+};
+
+
+if (string.IsNullOrEmpty(jwtSettings.Issuer) ||
+    string.IsNullOrEmpty(jwtSettings.Audience) ||
+    string.IsNullOrEmpty(jwtSettings.Key))
+{
+    throw new InvalidOperationException("JWT settings are not configured properly.");
+}
+
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddScoped<AuthService>();
 
 
@@ -44,7 +61,12 @@ builder.Services.AddAuthentication(options =>
 {
 
     options.IncludeErrorDetails = true;
-    var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+    var jwtSettings = new JwtSettings
+    {
+        Issuer = Environment.GetEnvironmentVariable("JWTSETTINGS__ISSUER") ?? builder.Configuration["JwtSettings:Issuer"],
+        Audience = Environment.GetEnvironmentVariable("JWTSETTINGS__AUDIENCE") ?? builder.Configuration["JwtSettings:Audience"],
+        Key = Environment.GetEnvironmentVariable("JWTSETTINGS__KEY") ?? builder.Configuration["JwtSettings:Key"]
+    };
     Console.WriteLine($"Issuer: {jwtSettings.Issuer}, Audience: {jwtSettings.Audience}, Key: {jwtSettings.Key}");
 
 
