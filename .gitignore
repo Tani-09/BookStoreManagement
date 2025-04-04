@@ -1,0 +1,4 @@
+﻿# Ignore Visual Studio specific files
+.vs/
+bin/
+obj/
