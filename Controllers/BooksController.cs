@@ -1,4 +1,4 @@
-﻿using Azure;
+﻿
 using BookStoreManagement.BLL.DTO.RequestDTO;
 using BookStoreManagement.BLL.Services;
 using Microsoft.AspNetCore.Http;
@@ -17,10 +17,12 @@ namespace BookStoreManagement.Controllers
     public class BooksController : ControllerBase
     {
         private readonly IBookService bookservice;
+        private readonly ILogger<BookService> _logger;
 
-        public BooksController(IBookService bookservice) {
+        public BooksController(IBookService bookservice, ILogger<BookService> logger) {
 
             this.bookservice = bookservice;
+            _logger = logger;
         }
 
 
@@ -35,16 +37,30 @@ namespace BookStoreManagement.Controllers
 
 
 
-        [Authorize(Roles = "Admin,User ,Guest")]
+       // [Authorize(Roles = "Admin,User ,Guest")]
+
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBooksById(int id)
         {
-            var book = await bookservice.GetByIdAsync(id);
-            if (book == null)
+            try
             {
-                return NotFound();
+                var book = await bookservice.GetByIdAsync(id);
+                if (book == null)
+                {
+                    return NotFound();
+                }
+                return Ok(book);
             }
-            return Ok(book);
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in GetBook controller for ID {id}");
+                return StatusCode(500, "Internal server error");
+            }
+
+
+
         }
 
 

@@ -91,7 +91,10 @@ builder.Services.AddAuthentication(options =>
 
 //CONFIGURE DATABASE
 builder.Services.AddDbContext<BookStoreDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+   options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+
 
 
 //CONFIGURE AUTOMAPPER
@@ -181,6 +184,9 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 
 var app = builder.Build();
+
+app.UseDeveloperExceptionPage();
+
 
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {

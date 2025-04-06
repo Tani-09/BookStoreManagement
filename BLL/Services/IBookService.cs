@@ -26,6 +26,7 @@ namespace BookStoreManagement.BLL.Services
         
         public async Task<IEnumerable<BookResponseDTO>> GetAllAsync()
         {
+
             _logger.LogInformation("Fetching all books.");
             var books = await _repositorywrapper.BookRepository.GetAllAsync();
             _logger.LogInformation($"Fetched {books.Count()} books.");
@@ -35,16 +36,28 @@ namespace BookStoreManagement.BLL.Services
 
         public async Task<BookResponseDTO> GetByIdAsync(int id)
         {
-            _logger.LogInformation($"Fetching book with ID {id}.");
-            var book = await _repositorywrapper.BookRepository.GetByIdAsync(id);
-            if (book == null)
+            try
             {
-                _logger.LogWarning($"Book with ID {id} not found.");
-                return null;
+                _logger.LogInformation($"Fetching book with ID {id}.");
+                var book = await _repositorywrapper.BookRepository.GetByIdAsync(id);
+                if (book == null)
+                {
+                    _logger.LogWarning($"Book with ID {id} not found.");
+                    return null;
+                }
+                _logger.LogInformation($"Fetched book: {book.Title}");
+                return _mapper.Map<BookResponseDTO>(book);
             }
 
-            _logger.LogInformation($"Fetched book: {book.Title}");
-            return _mapper.Map<BookResponseDTO>(book);
+            catch(Exception ex) 
+            {
+                _logger.LogError(ex, $"Error fetching book with ID {id}");
+                throw;
+            }
+           
+
+           // _logger.LogInformation($"Fetched book: {book.Title}");
+           // return _mapper.Map<BookResponseDTO>(book);
         }
 
         public async Task<BookResponseDTO> CreateAsync(BookRequestDTO requestdto)
